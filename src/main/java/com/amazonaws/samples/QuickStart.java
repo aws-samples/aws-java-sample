@@ -16,7 +16,8 @@ public class QuickStart {
         AmazonS3 s3 = new AmazonS3Client(credentialsProvider);
 
         // Create a bucket
-        String bucketName = "aws-java-sdk-sample-" + credentialsProvider.getCredentials().getAWSAccessKeyId();
+        String accessKey = credentialsProvider.getCredentials().getAWSAccessKeyId();
+        String bucketName = "aws-java-sdk-sample-" + accessKey.toLowerCase();
         s3.createBucket(bucketName);
     }
 
