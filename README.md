@@ -24,16 +24,17 @@ for more information on getting your keys.
 
 This sample application connects to Amazon's [Simple Storage Service (S3)](http://aws.amazon.com/s3),
 creates a bucket, and uploads a file to that bucket. The code will generate a
-bucket name for you, as well as an example file to upload. When you start making
-your own buckets, the S3 documentation has a good overview of the [restrictions for bucket names](http://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html).
-
-To compile and run the sample:
+bucket name for you, as well as an example file to upload. All you need to do
+is run it:
 
     mvn clean compile exec:java
 
+When you start making your own buckets, the S3 documentation provides a good overview
+of the [restrictions for bucket names](http://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html).
+
 ## License
 
-The SDK and this sample application are distributed under the
+This sample application is distributed under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 ```no-highlight
