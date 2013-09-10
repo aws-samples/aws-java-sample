@@ -11,8 +11,10 @@ be installed by building the maven package:
 
 ## Basic Configuration
 
-You need to set your AWS security credentials in `src/main/AwsCredentials.properties` before the sample
-is able to connect to AWS. This file should contain:
+You need to set up your AWS security credentials before the sample code is able
+to connect to AWS. An example is provided as `src/main/resources/AwsCredentials.properties.sample`.
+Copy the example to `src/main/resources/AwsCredentials.properties` and edit to
+use your access and secret keys:
 
     accessKey = <your access key id>
     secretKey = <your secret key>
