@@ -12,12 +12,12 @@ be installed by building the maven package:
 ## Basic Configuration
 
 You need to set up your AWS security credentials before the sample code is able
-to connect to AWS. An example is provided as `src/main/resources/AwsCredentials.properties.sample`.
-Copy the example to `src/main/resources/AwsCredentials.properties` and edit to
-use your access and secret keys:
+to connect to AWS. You can do this by creating a file named "credentials" at ~/.aws/ 
+(C:\Users\USER_NAME\.aws\ for Windows users) and saving the following lines in the file:
 
-    accessKey = <your access key id>
-    secretKey = <your secret key>
+    [default]
+    aws_access_key_id = <your access key id>
+    aws_secret_access_key = <your secret key>
 
 See the [Security Credentials](http://aws.amazon.com/security-credentials) page
 for more information on getting your keys.
