@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -56,15 +55,16 @@ public class S3Sample {
 
     public static void main(String[] args) throws IOException {
         /*
-         * This credentials provider implementation loads your AWS credentials
-         * from a properties file at the root of your classpath.
+         * Create your credentials file at ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows users) 
+         * and save the following lines after replacing the underlined values with your own.
+         * [default]
          *
-         * Important: Be sure to fill in your AWS access credentials in the
-         *            AwsCredentials.properties file before you try to run this
-         *            sample.
-         * http://aws.amazon.com/security-credentials
+         * aws_access_key_id = YOUR_ACCESS_KEY_ID
+         *
+         * aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
          */
-        AmazonS3 s3 = new AmazonS3Client(new ClasspathPropertiesFileCredentialsProvider());
+
+        AmazonS3 s3 = new AmazonS3Client();
         Region usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
 
