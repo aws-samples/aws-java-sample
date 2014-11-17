@@ -23,6 +23,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${env.HOME}/.aws/</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
