@@ -46,10 +46,9 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
  * account, and be signed up to use Amazon S3. For more information on
  * Amazon S3, see http://aws.amazon.com/s3.
  * <p>
- * <b>Important:</b> Be sure to fill in your AWS access credentials in the
- *                   AwsCredentials.properties file before you try to run this
- *                   sample.
- * http://aws.amazon.com/security-credentials
+ * <b>Important:</b> Be sure to fill in your AWS access credentials in
+ * ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows
+ * users) before you try to run this sample.
  */
 public class S3Sample {
 
@@ -57,10 +56,9 @@ public class S3Sample {
         /*
          * Create your credentials file at ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows users) 
          * and save the following lines after replacing the underlined values with your own.
+         *
          * [default]
-         *
          * aws_access_key_id = YOUR_ACCESS_KEY_ID
-         *
          * aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
          */
 
