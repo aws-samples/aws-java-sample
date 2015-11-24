@@ -24,6 +24,11 @@ for more information on getting your keys.
 
 ## Running the S3 sample
 
+### Prerequisites
+You will need to go to [IAM policies page](https://console.aws.amazon.com/iam/home?#policies), search for the String "S3,"
+and "Attach" the "AmazonS3FullAccess" policy to the user whose credentials exist in 
+your `~/.aws/credentials` file. Otherwise, you will likely get a `AmazonServiceException`/`Access Denied`/`403` error.
+
 This sample application connects to Amazon's [Simple Storage Service (S3)](http://aws.amazon.com/s3),
 creates a bucket, and uploads a file to that bucket. The code will generate a
 bucket name for you, as well as an example file to upload. All you need to do
