@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName="com.amazonaws.samples.S3Sample"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.amazonaws:aws-java-sdk:1.9.6'
+}
