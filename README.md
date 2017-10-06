@@ -56,5 +56,3 @@ of the [restrictions for bucket names](http://docs.aws.amazon.com/AmazonS3/lates
 
 This sample application is distributed under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
-TEST
