@@ -14,36 +14,19 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.*;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class SQSExtendedClientExample {
 
-    private static final Logger log = Logger.getAnonymousLogger();
+    private static final Logger log = Logger.getLogger(SQSExtendedClientExample.class.getName());
 
     private static final String s3BucketName = UUID.randomUUID() + "-" + DateTimeFormat.forPattern("yyMMdd-hhmmss").print(new DateTime());
 
-    private static void initializeLogger() {
-        Properties log4jProperties = new Properties();
-        log4jProperties.setProperty("log4j.rootLogger", "ERROR, myConsoleAppender");
-        log4jProperties.setProperty("log4j.appender.myConsoleAppender", "org.apache.log4j.ConsoleAppender");
-        log4jProperties.setProperty("log4j.appender.myConsoleAppender.layout", "org.apache.log4j.PatternLayout");
-        log4jProperties.setProperty("log4j.appender.myConsoleAppender.layout.ConversionPattern", "%-5p %c %x - %m%n");
-        PropertyConfigurator.configure(log4jProperties);
-
-        BasicConfigurator.configure();
-
-        log.info("Logger intialized");
-    }
-
     public static void main(String[] args) {
-
-        SQSExtendedClientExample.initializeLogger();
 
         AWSCredentials credentials = null;
 
