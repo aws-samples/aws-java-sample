@@ -1,8 +1,7 @@
 apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'idea'
-
-//mainClassName="com.amazonaws.samples.S3Sample"
+//apply plugin: 'idea'
+//apply plugin: 'eclipse'
+//apply plugin: 'application'
 
 repositories {
     mavenCentral()
