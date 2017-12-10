@@ -35,14 +35,24 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
+                        <id>first-execution</id>
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>com.amazonaws.samples.S3Sample</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>second-execution</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.amazonaws.samples.SQSExtendedClientExample</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>com.amazonaws.samples.S3Sample</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
