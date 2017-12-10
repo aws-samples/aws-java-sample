@@ -46,7 +46,7 @@ Maven:
 
 Gradle:
 
-    gradlew clean build run
+    gradlew clean build runS3Example runSQSExample
 
 
 When you start making your own buckets, the S3 documentation provides a good overview
