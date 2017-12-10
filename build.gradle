@@ -10,5 +10,5 @@ repositories {
 dependencies {
     compile 'com.amazonaws:aws-java-sdk:1.9.6'
     compile 'com.amazonaws:amazon-sqs-java-extended-client-lib:1.0.1'
-
+    compile 'log4j:log4j:1.2.17'
 }

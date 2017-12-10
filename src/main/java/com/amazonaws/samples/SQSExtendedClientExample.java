@@ -1,12 +1,14 @@
 package com.amazonaws.samples;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Logger;
+
 import com.amazon.sqs.javamessaging.AmazonSQSExtendedClient;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import com.amazonaws.AmazonClientException;
@@ -32,10 +34,26 @@ import com.amazon.sqs.javamessaging.ExtendedClientConfiguration;
 
 public class SQSExtendedClientExample {
 
-    private static final String s3BucketName = UUID.randomUUID() + "-"
-            + DateTimeFormat.forPattern("yyMMdd-hhmmss").print(new DateTime());
+    static Logger log = Logger.getAnonymousLogger();
+
+    private static final String s3BucketName = UUID.randomUUID() + "-" + DateTimeFormat.forPattern("yyMMdd-hhmmss").print(new DateTime());
+
+    private static void initializeLogger() {
+        Properties log4jProperties = new Properties();
+        log4jProperties.setProperty("log4j.rootLogger", "ERROR, myConsoleAppender");
+        log4jProperties.setProperty("log4j.appender.myConsoleAppender", "org.apache.log4j.ConsoleAppender");
+        log4jProperties.setProperty("log4j.appender.myConsoleAppender.layout", "org.apache.log4j.PatternLayout");
+        log4jProperties.setProperty("log4j.appender.myConsoleAppender.layout.ConversionPattern", "%-5p %c %x - %m%n");
+        PropertyConfigurator.configure(log4jProperties);
+
+        BasicConfigurator.configure();
+
+        log.info("Logger intialized");
+    }
 
     public static void main(String[] args) {
+
+        SQSExtendedClientExample.initializeLogger();
 
         AWSCredentials credentials = null;
 
@@ -62,7 +80,7 @@ public class SQSExtendedClientExample {
 
         s3.createBucket(s3BucketName);
         s3.setBucketLifecycleConfiguration(s3BucketName, lifecycleConfig);
-        System.out.println("Bucket created and configured.");
+        log.info("Bucket created and configured.");
 
         // Set the SQS extended client configuration with large payload support enabled.
         ExtendedClientConfiguration extendedClientConfig = new ExtendedClientConfiguration()
@@ -82,34 +100,34 @@ public class SQSExtendedClientExample {
         String QueueName = "QueueName" + UUID.randomUUID().toString();
         CreateQueueRequest createQueueRequest = new CreateQueueRequest(QueueName);
         String myQueueUrl = sqsExtended.createQueue(createQueueRequest).getQueueUrl();
-        System.out.println("Queue created.");
+        log.info("Queue created.");
 
         // Send the message.
         SendMessageRequest myMessageRequest = new SendMessageRequest(myQueueUrl, myLongString);
         sqsExtended.sendMessage(myMessageRequest);
-        System.out.println("Sent the message.");
+        log.info("Sent the message.");
 
         // Receive messages, and then print general information about them.
         ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(myQueueUrl);
         List<Message> messages = sqsExtended.receiveMessage(receiveMessageRequest).getMessages();
 
         for (Message message : messages) {
-            System.out.println("\nMessage received:");
-            System.out.println("  ID: " + message.getMessageId());
-            System.out.println("  Receipt handle: " + message.getReceiptHandle());
-            System.out.println("  Message body (first 5 characters): " + message.getBody().substring(0, 5));
+            log.info("\nMessage received:");
+            log.info("  ID: " + message.getMessageId());
+            log.info("  Receipt handle: " + message.getReceiptHandle());
+            log.info("  Message body (first 5 characters): " + message.getBody().substring(0, 5));
         }
 
         // Delete the message, the queue, and the bucket.
         String messageReceiptHandle = messages.get(0).getReceiptHandle();
         sqsExtended.deleteMessage(new DeleteMessageRequest(myQueueUrl, messageReceiptHandle));
-        System.out.println("Deleted the message.");
+        log.info("Deleted the message.");
 
         sqsExtended.deleteQueue(new DeleteQueueRequest(myQueueUrl));
-        System.out.println("Deleted the queue.");
+        log.info("Deleted the queue.");
 
-        //deleteBucketAndAllContents(s3);
-        System.out.println("Deleted the bucket.");
+        deleteBucketAndAllContents(s3);
+        log.info("Deleted the bucket.");
 
     }
 
