@@ -145,7 +145,7 @@ public class S3Sample {
              * there is no way to undelete an object, so use caution when deleting objects.
              */
             System.out.println("Deleting an object\n");
-            s3.deleteObject(bucketName, key);
+            //s3.deleteObject(bucketName, key);
 
             /*
              * Delete a bucket - A bucket must be completely empty before it can be
@@ -153,7 +153,7 @@ public class S3Sample {
              * you try to delete them.
              */
             System.out.println("Deleting bucket " + bucketName + "\n");
-            s3.deleteBucket(bucketName);
+            //s3.deleteBucket(bucketName);
         } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.");

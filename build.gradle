@@ -9,4 +9,6 @@ repositories {
 
 dependencies {
     compile 'com.amazonaws:aws-java-sdk:1.9.6'
+    compile 'com.amazonaws:amazon-sqs-java-extended-client-lib:1.0.1'
+
 }
