@@ -1,7 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'idea'
 
-mainClassName="com.amazonaws.samples.S3Sample"
+//mainClassName="com.amazonaws.samples.S3Sample"
 
 repositories {
     mavenCentral()
@@ -12,3 +13,15 @@ dependencies {
     compile 'com.amazonaws:amazon-sqs-java-extended-client-lib:1.0.1'
     compile 'log4j:log4j:1.2.17'
 }
+
+task(runS3Example, dependsOn: 'classes', type: JavaExec) {
+    main = 'com.amazonaws.samples.S3Sample'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task(runSQSExample, dependsOn: 'classes', type: JavaExec) {
+    main = 'com.amazonaws.samples.SQSExtendedClientExample'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+defaultTasks 'runS3Example', 'runSQSExample'
