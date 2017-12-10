@@ -1,40 +1,30 @@
 package com.amazonaws.samples;
 
-import java.util.*;
-import java.util.logging.Logger;
-
 import com.amazon.sqs.javamessaging.AmazonSQSExtendedClient;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClient;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.PropertyConfigurator;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import com.amazon.sqs.javamessaging.ExtendedClientConfiguration;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-import com.amazonaws.services.s3.model.ListVersionsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.S3VersionSummary;
-import com.amazonaws.services.s3.model.VersionListing;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.DeleteQueueRequest;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazon.sqs.javamessaging.ExtendedClientConfiguration;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.model.*;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+
+import java.util.*;
+import java.util.logging.Logger;
 
 public class SQSExtendedClientExample {
 
-    static Logger log = Logger.getAnonymousLogger();
+    private static final Logger log = Logger.getAnonymousLogger();
 
     private static final String s3BucketName = UUID.randomUUID() + "-" + DateTimeFormat.forPattern("yyMMdd-hhmmss").print(new DateTime());
 
@@ -66,9 +56,11 @@ public class SQSExtendedClientExample {
                             + "location (/home/$USER/.aws/credentials) and is in a valid format.", e);
         }
 
-        AmazonS3 s3 = new AmazonS3Client(credentials);
-        Region s3Region = Region.getRegion(Regions.US_WEST_2);
-        s3.setRegion(s3Region);
+        AmazonS3 s3 = AmazonS3ClientBuilder
+                .standard()
+                .withRegion(Regions.US_WEST_2)
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .build();
 
         // Set the Amazon S3 bucket name, and set a lifecycle rule on the bucket to
         // permanently delete objects a certain number of days after
