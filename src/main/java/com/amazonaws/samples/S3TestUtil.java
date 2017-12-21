@@ -14,7 +14,7 @@ import java.util.Iterator;
 /**
  * Requires that you created a file ~/.aws/credentials
  */
-public class S3Util
+public class S3TestUtil
 {
     private static final AmazonS3 s3;
     private static final Region usWest2;
