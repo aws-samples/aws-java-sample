@@ -1,18 +1,17 @@
 package com.amazonaws.samples;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.CopyObjectResult;
-import com.amazonaws.services.s3.transfer.Download;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.UUID;
 
 /**
@@ -30,20 +29,21 @@ public class S3TransferExample {
     private static String destinationBucket;
 
     static {
-         s3 = new AmazonS3Client();
-         usWest2 = Region.getRegion(Regions.US_WEST_2);
-         s3.setRegion(usWest2);
-         credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-         fileKey = createTmpFile();
+        s3 = new AmazonS3Client();
+        usWest2 = Region.getRegion(Regions.US_WEST_2);
+        s3.setRegion(usWest2);
+        credentialProviderChain = new DefaultAWSCredentialsProviderChain();
+        fileKey = createTmpFile();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         createTestBuckets("test-bucket-" + UUID.randomUUID());
 
         uploadTmpFileToBucket();
 
         copyBucketToNewLocation();
+
+        deleteTestBuckets();
 
     }
 
@@ -53,8 +53,7 @@ public class S3TransferExample {
         System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
 
-    public static void uploadTmpFileToBucket()
-    {
+    public static void uploadTmpFileToBucket() {
         System.out.println("Uploading a file to bucket " + sourceBucket);
         tx = new TransferManager(credentialProviderChain.getCredentials());
 
@@ -68,10 +67,12 @@ public class S3TransferExample {
         if (tx != null) tx.shutdownNow();
     }
 
+    public static void deleteTestBuckets() {
+        deleteEntireBucket(sourceBucket);
+        deleteEntireBucket(destinationBucket);
+    }
 
-
-    public static void createTestBuckets(String name)
-    {
+    public static void createTestBuckets(String name) {
         sourceBucket = name;
         destinationBucket = name + "-dest";
         System.out.println("Creating a test buckets with names: " + sourceBucket + ", " + destinationBucket);
@@ -103,10 +104,52 @@ public class S3TransferExample {
             writer.write("01234567890112345678901234\n");
             writer.write("abcdefghijklmnopqrstuvwxyz\n");
             writer.close();
-        } catch (IOException ioe ) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         return tempTestFile;
+    }
+
+    public static void deleteEntireBucket(String bucket_name) {
+        System.out.println("Deleting S3 bucket: " + bucket_name);
+        final AmazonS3 s3 = new AmazonS3Client();
+
+        try {
+            System.out.println(" - removing objects from bucket");
+            ObjectListing object_listing = s3.listObjects(bucket_name);
+            while (true) {
+                for (Iterator<?> iterator = object_listing.getObjectSummaries().iterator(); iterator.hasNext(); ) {
+                    S3ObjectSummary summary = (S3ObjectSummary) iterator.next();
+                    s3.deleteObject(bucket_name, summary.getKey());
+                    summary.getETag();
+                }
+                if (object_listing.isTruncated()) {
+                    object_listing = s3.listNextBatchOfObjects(object_listing);
+                } else {
+                    break;
+                }
+            }
+            ;
+
+            System.out.println(" - removing versions from bucket");
+            VersionListing version_listing = s3.listVersions(new ListVersionsRequest().withBucketName(bucket_name));
+            while (true) {
+                for (Iterator<?> iterator = version_listing.getVersionSummaries().iterator(); iterator.hasNext(); ) {
+                    S3VersionSummary vs = (S3VersionSummary) iterator.next();
+                    s3.deleteVersion(bucket_name, vs.getKey(), vs.getVersionId());
+                }
+                if (version_listing.isTruncated()) {
+                    version_listing = s3.listNextBatchOfVersions(version_listing);
+                } else {
+                    break;
+                }
+            }
+            s3.deleteBucket(bucket_name);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
+        System.out.println("Done removing bucket: " + bucket_name);
     }
 
 }
