@@ -106,7 +106,7 @@ public class S3TestUtil
         BucketLifecycleConfiguration configuration =
                 new BucketLifecycleConfiguration()
                         .withRules(Arrays.asList(bucketExpirationRule));
-        
+
         boolean bucketMissing = !bucketExists(name);
 
         if (bucketMissing) {

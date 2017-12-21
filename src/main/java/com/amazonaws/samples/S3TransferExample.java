@@ -24,6 +24,7 @@ public class S3TransferExample
 
     private static void copyBucketToNewLocation() {
         System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
+        // need to iterate the bucket here or figure out how to copy all at once
         CopyObjectResult copyObjectResult = S3TestUtil.getS3().copyObject(sourceBucket, fileKey1.getName(), destinationBucket, fileKey1.getName());
         System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
