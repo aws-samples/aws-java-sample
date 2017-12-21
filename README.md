@@ -1,4 +1,4 @@
-# AWS SDK for Java Sample Project
+# AWS SDK for Java 'Improved' Sample Project
 
 A simple Java application illustrating usage of the AWS SDK for Java.
 
