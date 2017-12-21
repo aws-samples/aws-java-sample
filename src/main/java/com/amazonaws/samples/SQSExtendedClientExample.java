@@ -101,7 +101,7 @@ public class SQSExtendedClientExample {
         sqsExtended.deleteQueue(new DeleteQueueRequest(myQueueUrl));
         log.info("Deleted the queue.");
 
-        S3Util.deleteEntireBucket(s3BucketName);
+        S3TestUtil.deleteEntireBucket(s3BucketName);
         log.info("Deleted the bucket.");
 
     }

@@ -8,7 +8,12 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 
 import java.io.*;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -93,8 +98,8 @@ public class S3TestUtil
     public static void createExpiringBucket(String name) {
         BucketLifecycleConfiguration.Rule bucketExpirationRule =
                 new BucketLifecycleConfiguration.Rule()
-                        .withId("RULE: Delete after 1 day")
-                        .withExpirationInDays(1)
+                        .withId("RULE: Delete bucket after 10 minutes")
+                        .withExpirationInDays(1)  // expiration date must be midnight GMT
                         .withStatus(BucketLifecycleConfiguration.ENABLED.toString());
 
         BucketLifecycleConfiguration configuration =
@@ -105,7 +110,7 @@ public class S3TestUtil
         boolean bucketMissing = !bucketExists(name);
 
         if (bucketMissing) {
-            System.out.println("Creating bucket " + name + "\n");
+            System.out.println("Creating 10 minute bucket " + name + "\n");
             s3.createBucket(name);
             s3.setBucketLifecycleConfiguration(name, configuration);
         }

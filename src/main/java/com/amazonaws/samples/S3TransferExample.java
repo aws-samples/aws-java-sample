@@ -19,20 +19,20 @@ public class S3TransferExample {
 
     static {
         credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-        fileKey = S3Util.createTmpFile();
+        fileKey = S3TestUtil.createTmpFile();
     }
 
     public static void main(String[] args) {
         createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
         uploadTmpFileToBucket();
         copyBucketToNewLocation();
-        S3Util.showAllBuckets();
+        S3TestUtil.showAllBuckets();
         //deleteTestBucketsNow();
     }
 
     private static void copyBucketToNewLocation() {
         System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
-        CopyObjectResult copyObjectResult = S3Util.getS3().copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
+        CopyObjectResult copyObjectResult = S3TestUtil.getS3().copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
         System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
 
@@ -54,13 +54,13 @@ public class S3TransferExample {
     {
         sourceBucket = name;
         destinationBucket = name + "-dest";
-        if (!S3Util.bucketExists(sourceBucket)) S3Util.createExpiringBucket(sourceBucket);
-        if (!S3Util.bucketExists(destinationBucket)) S3Util.createExpiringBucket(destinationBucket);
+        if (!S3TestUtil.bucketExists(sourceBucket)) S3TestUtil.createExpiringBucket(sourceBucket);
+        if (!S3TestUtil.bucketExists(destinationBucket)) S3TestUtil.createExpiringBucket(destinationBucket);
     }
 
     public static void deleteTestBucketsNow() {
-        S3Util.deleteEntireBucket(sourceBucket);
-        S3Util.deleteEntireBucket(destinationBucket);
+        S3TestUtil.deleteEntireBucket(sourceBucket);
+        S3TestUtil.deleteEntireBucket(destinationBucket);
     }
 
 }
