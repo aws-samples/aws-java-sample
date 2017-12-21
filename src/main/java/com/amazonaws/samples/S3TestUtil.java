@@ -1,19 +1,17 @@
 package com.amazonaws.samples;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
 
 import java.io.*;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -23,11 +21,14 @@ public class S3TestUtil
 {
     private static final AmazonS3 s3;
     private static final Region usWest2;
+    private static final DefaultAWSCredentialsProviderChain credentialProviderChain;
+    private static TransferManager tx;
 
     static {
         s3 = new AmazonS3Client();
         usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
+        credentialProviderChain = new DefaultAWSCredentialsProviderChain();
     }
 
     public static AmazonS3 getS3() {
@@ -129,6 +130,20 @@ public class S3TestUtil
         for (Bucket bucket : s3.listBuckets()) {
             System.out.println("bucket: " + bucket.getName());
         }
+    }
+
+    public static void uploadTmpFileToBucket(String bucketName, File fileKey) {
+        System.out.println("Uploading a file to bucket " + bucketName);
+        tx = new TransferManager(credentialProviderChain.getCredentials());
+
+        Upload myUpload = tx.upload(bucketName, fileKey.getName(), fileKey);
+
+        try {
+            myUpload.waitForCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (tx != null) tx.shutdownNow();
     }
 
 }
