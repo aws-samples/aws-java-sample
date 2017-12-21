@@ -6,17 +6,20 @@ import java.util.UUID;
 
 public class S3TransferExample
 {
-    private static File fileKey;
+    private static File fileKey1;
+    private static File fileKey2;
     private static String sourceBucket;
     private static String destinationBucket;
 
     static {
-        fileKey = S3TestUtil.createTmpFile();
+        fileKey1 = S3TestUtil.createTmpFile();
+        fileKey2 = S3TestUtil.createTmpFile();
     }
 
     public static void main(String[] args) {
         createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
-        S3TestUtil.uploadTmpFileToBucket(sourceBucket, fileKey);
+        S3TestUtil.uploadTmpFileToBucket(sourceBucket, fileKey1);
+        S3TestUtil.uploadTmpFileToBucket(sourceBucket, fileKey2);
         copyBucketToNewLocation();
         S3TestUtil.showAllBuckets();
         //deleteTestBucketsNow();
@@ -24,10 +27,10 @@ public class S3TransferExample
 
     private static void copyBucketToNewLocation() {
         System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
-        CopyObjectResult copyObjectResult = S3TestUtil.getS3().copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
+        CopyObjectResult copyObjectResult = S3TestUtil.getS3().copyObject(sourceBucket, fileKey1.getName(), destinationBucket, fileKey1.getName());
         System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
-    
+
     public static void createSourceAndDestinationBuckets(String name)
     {
         sourceBucket = name;
