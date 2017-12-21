@@ -37,8 +37,6 @@ public class S3TestUtil
 
     public static void deleteEntireBucket(String bucket_name) {
         System.out.println("Deleting S3 bucket: " + bucket_name);
-        final AmazonS3 s3 = new AmazonS3Client();
-
         try {
             System.out.println(" - removing objects from bucket");
             ObjectListing object_listing = s3.listObjects(bucket_name);
@@ -46,7 +44,6 @@ public class S3TestUtil
                 for (Iterator<?> iterator = object_listing.getObjectSummaries().iterator(); iterator.hasNext(); ) {
                     S3ObjectSummary summary = (S3ObjectSummary) iterator.next();
                     s3.deleteObject(bucket_name, summary.getKey());
-                    summary.getETag();
                 }
                 if (object_listing.isTruncated()) {
                     object_listing = s3.listNextBatchOfObjects(object_listing);
@@ -54,7 +51,6 @@ public class S3TestUtil
                     break;
                 }
             }
-            ;
 
             System.out.println(" - removing versions from bucket");
             VersionListing version_listing = s3.listVersions(new ListVersionsRequest().withBucketName(bucket_name));
@@ -75,6 +71,44 @@ public class S3TestUtil
             System.exit(1);
         }
         System.out.println("Done removing bucket: " + bucket_name);
+    }
+
+    public static void copyEntireBucket(String src_bucket, String dest_bucket) {
+        System.out.println("Copying S3 bucket '" + src_bucket + "' to destination '" + dest_bucket + "' ...");
+        try {
+            System.out.println(" - copying objects from bucket");
+            ObjectListing object_listing = s3.listObjects(src_bucket);
+            while (true) {
+                for (Iterator<?> iterator = object_listing.getObjectSummaries().iterator(); iterator.hasNext(); ) {
+                    S3ObjectSummary summary = (S3ObjectSummary) iterator.next();
+                    s3.copyObject(src_bucket, summary.getKey(), dest_bucket, summary.getKey());
+                }
+                if (object_listing.isTruncated()) {
+                    object_listing = s3.listNextBatchOfObjects(object_listing);
+                } else {
+                    break;
+                }
+            }
+
+            //System.out.println(" - copying versions from bucket");
+            //VersionListing version_listing = s3.listVersions(new ListVersionsRequest().withBucketName(src_bucket));
+            //while (true) {
+            //    for (Iterator<?> iterator = version_listing.getVersionSummaries().iterator(); iterator.hasNext(); ) {
+            //        S3VersionSummary vs = (S3VersionSummary) iterator.next();
+            //        s3.deleteVersion(src_bucket, vs.getKey(), vs.getVersionId());
+            //    }
+            //    if (version_listing.isTruncated()) {
+            //        version_listing = s3.listNextBatchOfVersions(version_listing);
+            //    } else {
+            //        break;
+            //    }
+            //}
+            //s3.deleteBucket(src_bucket);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
+        System.out.println("Done copying bucket '" + src_bucket + "' to new bucket '" + dest_bucket + "'");
     }
 
     public static File createTmpFile() {
@@ -99,8 +133,8 @@ public class S3TestUtil
     public static void createExpiringBucket(String name) {
         BucketLifecycleConfiguration.Rule bucketExpirationRule =
                 new BucketLifecycleConfiguration.Rule()
-                        .withId("RULE: Delete bucket after 10 minutes")
-                        .withExpirationInDays(1)  // expiration date must be midnight GMT
+                        .withId("RULE: Delete bucket after 1 day")
+                        .withExpirationInDays(1) // expiration date must be midnight GMT and is effectively GMT-8, or around 4pm
                         .withStatus(BucketLifecycleConfiguration.ENABLED.toString());
 
         BucketLifecycleConfiguration configuration =
