@@ -10,7 +10,6 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class S3TransferExample {
@@ -29,11 +28,11 @@ public class S3TransferExample {
         usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
         credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-        fileKey = createTmpFile();
+        fileKey = S3Util.createTmpFile();
     }
 
     public static void main(String[] args) {
-        createTestBuckets("test-bucket-" + UUID.randomUUID());
+        createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
 
         uploadTmpFileToBucket();
 
@@ -41,6 +40,14 @@ public class S3TransferExample {
 
         //deleteTestBucketsNow();
 
+    }
+
+    /**
+     * Call if you want buckets deleted sooner than their 1-day expiration
+     */
+    public static void deleteTestBucketsNow() {
+        S3Util.deleteEntireBucket(sourceBucket);
+        S3Util.deleteEntireBucket(destinationBucket);
     }
 
     private static void copyBucketToNewLocation() {
@@ -63,66 +70,12 @@ public class S3TransferExample {
         if (tx != null) tx.shutdownNow();
     }
 
-    /**
-     * Call if you want buckets deleted sooner than their 1-day expiration
-     */
-    public static void deleteTestBucketsNow() {
-        S3Util.deleteEntireBucket(sourceBucket);
-        S3Util.deleteEntireBucket(destinationBucket);
-    }
-
-    public static void createTestBuckets(String name) {
-
-        BucketLifecycleConfiguration.Rule bucketExpirationRule =
-                new BucketLifecycleConfiguration.Rule()
-                        .withId("RULE: Delete after 1 day")
-                        .withExpirationInDays(1)
-                        .withStatus(BucketLifecycleConfiguration.ENABLED.toString());
-
-        BucketLifecycleConfiguration configuration =
-                new BucketLifecycleConfiguration()
-                        .withRules(Arrays.asList(bucketExpirationRule));
-
+    public static void createSourceAndDestinationBuckets(String name)
+    {
         sourceBucket = name;
         destinationBucket = name + "-dest";
-
-        System.out.println("Creating a test buckets with names: " + sourceBucket + ", " + destinationBucket);
-        boolean bucketMissing = true;
-        for (Bucket bucket : s3.listBuckets()) {
-            System.out.println("bucket: " + bucket.getName());
-            if (bucket.getName().equals(name)) {
-                System.out.println("Bucket " + name + " already exists.");
-                bucketMissing = false;
-            }
-        }
-        if (bucketMissing) {
-            System.out.println("Creating bucket " + name + "\n");
-            s3.createBucket(sourceBucket);
-            s3.setBucketLifecycleConfiguration(sourceBucket, configuration);
-            s3.createBucket(destinationBucket);
-            s3.setBucketLifecycleConfiguration(destinationBucket, configuration);
-        }
+        if (!S3Util.bucketExists(sourceBucket)) S3Util.createExpiringBucket(sourceBucket);
+        if (!S3Util.bucketExists(destinationBucket)) S3Util.createExpiringBucket(destinationBucket);
     }
-
-    private static File createTmpFile() {
-        File tempTestFile = null;
-        try {
-            tempTestFile = File.createTempFile("aws-java-sdk-copy-test", ".txt");
-            tempTestFile.deleteOnExit();
-
-            Writer writer = new OutputStreamWriter(new FileOutputStream(tempTestFile));
-            writer.write("abcdefghijklmnopqrstuvwxyz\n");
-            writer.write("01234567890112345678901234\n");
-            writer.write("!@#$%^&*()-=[]{};':',.<>/?\n");
-            writer.write("01234567890112345678901234\n");
-            writer.write("abcdefghijklmnopqrstuvwxyz\n");
-            writer.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return tempTestFile;
-    }
-
-
 
 }
