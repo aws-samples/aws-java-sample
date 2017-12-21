@@ -101,36 +101,8 @@ public class SQSExtendedClientExample {
         sqsExtended.deleteQueue(new DeleteQueueRequest(myQueueUrl));
         log.info("Deleted the queue.");
 
-        deleteBucketAndAllContents(s3);
+        S3Util.deleteEntireBucket(s3BucketName);
         log.info("Deleted the bucket.");
-
-    }
-
-    private static void deleteBucketAndAllContents(AmazonS3 client) {
-
-        ObjectListing objectListing = client.listObjects(s3BucketName);
-
-        while (true) {
-            for (Iterator<?> iterator = objectListing.getObjectSummaries().iterator(); iterator.hasNext(); ) {
-                S3ObjectSummary objectSummary = (S3ObjectSummary) iterator.next();
-                client.deleteObject(s3BucketName, objectSummary.getKey());
-            }
-
-            if (objectListing.isTruncated()) {
-                objectListing = client.listNextBatchOfObjects(objectListing);
-            } else {
-                break;
-            }
-        };
-
-        VersionListing list = client.listVersions(new ListVersionsRequest().withBucketName(s3BucketName));
-
-        for (Iterator<?> iterator = list.getVersionSummaries().iterator(); iterator.hasNext(); ) {
-            S3VersionSummary s = (S3VersionSummary) iterator.next();
-            client.deleteVersion(s3BucketName, s.getKey(), s.getVersionId());
-        }
-
-        client.deleteBucket(s3BucketName);
 
     }
 
