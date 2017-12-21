@@ -89,13 +89,14 @@ public class S3TestUtil
                     break;
                 }
             }
-
             //System.out.println(" - copying versions from bucket");
             //VersionListing version_listing = s3.listVersions(new ListVersionsRequest().withBucketName(src_bucket));
             //while (true) {
             //    for (Iterator<?> iterator = version_listing.getVersionSummaries().iterator(); iterator.hasNext(); ) {
             //        S3VersionSummary vs = (S3VersionSummary) iterator.next();
-            //        s3.deleteVersion(src_bucket, vs.getKey(), vs.getVersionId());
+            //        String key = vs.getKey();
+            //        String ver = vs.getVersionId();
+            //        // how??
             //    }
             //    if (version_listing.isTruncated()) {
             //        version_listing = s3.listNextBatchOfVersions(version_listing);
