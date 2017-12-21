@@ -80,7 +80,7 @@ public class S3TestUtil
     public static File createTmpFile() {
         File tempTestFile = null;
         try {
-            tempTestFile = File.createTempFile("aws-java-sdk-copy-test", ".txt");
+            tempTestFile = File.createTempFile("aws-java-sdk-copy-test-", ".txt");
             tempTestFile.deleteOnExit();
 
             Writer writer = new OutputStreamWriter(new FileOutputStream(tempTestFile));
@@ -106,8 +106,7 @@ public class S3TestUtil
         BucketLifecycleConfiguration configuration =
                 new BucketLifecycleConfiguration()
                         .withRules(Arrays.asList(bucketExpirationRule));
-
-        System.out.println("Creating a test bucket with name: " + name);
+        
         boolean bucketMissing = !bucketExists(name);
 
         if (bucketMissing) {

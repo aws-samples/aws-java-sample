@@ -11,14 +11,11 @@ public class S3TransferExample
     private static String sourceBucket;
     private static String destinationBucket;
 
-    static {
-        fileKey1 = S3TestUtil.createTmpFile();
-        fileKey2 = S3TestUtil.createTmpFile();
-    }
-
     public static void main(String[] args) {
         createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
+        fileKey1 = S3TestUtil.createTmpFile();
         S3TestUtil.uploadTmpFileToBucket(sourceBucket, fileKey1);
+        fileKey2 = S3TestUtil.createTmpFile();
         S3TestUtil.uploadTmpFileToBucket(sourceBucket, fileKey2);
         copyBucketToNewLocation();
         S3TestUtil.showAllBuckets();
