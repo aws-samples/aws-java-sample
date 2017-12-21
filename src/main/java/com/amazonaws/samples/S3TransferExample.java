@@ -1,6 +1,5 @@
 package com.amazonaws.samples;
 
-import com.amazonaws.services.s3.model.*;
 import java.io.*;
 import java.util.UUID;
 
@@ -25,9 +24,7 @@ public class S3TransferExample
     private static void copyBucketToNewLocation() {
         System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
         //CopyObjectResult copyObjectResult = S3TestUtil.getS3().copyObject(sourceBucket, fileKey1.getName(), destinationBucket, fileKey1.getName());
-
         S3TestUtil.copyEntireBucket(sourceBucket, destinationBucket);
-
     }
 
     public static void createSourceAndDestinationBuckets(String name)
