@@ -33,21 +33,9 @@ public class S3TransferExample {
 
     public static void main(String[] args) {
         createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
-
         uploadTmpFileToBucket();
-
         copyBucketToNewLocation();
-
         //deleteTestBucketsNow();
-
-    }
-
-    /**
-     * Call if you want buckets deleted sooner than their 1-day expiration
-     */
-    public static void deleteTestBucketsNow() {
-        S3Util.deleteEntireBucket(sourceBucket);
-        S3Util.deleteEntireBucket(destinationBucket);
     }
 
     private static void copyBucketToNewLocation() {
@@ -76,6 +64,11 @@ public class S3TransferExample {
         destinationBucket = name + "-dest";
         if (!S3Util.bucketExists(sourceBucket)) S3Util.createExpiringBucket(sourceBucket);
         if (!S3Util.bucketExists(destinationBucket)) S3Util.createExpiringBucket(destinationBucket);
+    }
+
+    public static void deleteTestBucketsNow() {
+        S3Util.deleteEntireBucket(sourceBucket);
+        S3Util.deleteEntireBucket(destinationBucket);
     }
 
 }
