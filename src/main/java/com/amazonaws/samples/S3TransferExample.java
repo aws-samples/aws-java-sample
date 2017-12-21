@@ -6,6 +6,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -20,45 +22,43 @@ public class S3TransferExample {
 
     private static final AmazonS3 s3;
     private static final Region usWest2;
-    private static final String bucketName;
     private static final DefaultAWSCredentialsProviderChain credentialProviderChain;
-
     private static TransferManager tx;
-    private static S3TransferExample trxManager;
+
     private static File fileKey;
+    private static String sourceBucket;
+    private static String destinationBucket;
 
     static {
          s3 = new AmazonS3Client();
          usWest2 = Region.getRegion(Regions.US_WEST_2);
          s3.setRegion(usWest2);
-         bucketName = "s3-bucket-sync-test-" + UUID.randomUUID();
          credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-         fileKey = createSampleFile();
+         fileKey = createTmpFile();
     }
 
     public static void main(String[] args)
     {
-        trxManager = new S3TransferExample();
-        //S3Object[] objects = s3Service.listObjects(YourBucketNameString);
-        //AmazonS3Client s3 = new AmazonS3Client(myCredentials);
-        //for ( S3VersionSummary summary : S3Versions.forPrefix(s3, "my-bucket", "photos/") ) {
-        //    System.out.printf("Version '%s' of key '%s'n", summary.getVersionId(), summary.getKey());
-        //}
-
-        createATestBucket();
+        createTestBuckets("test-bucket-" + UUID.randomUUID());
 
         uploadTmpFileToBucket();
 
-        downloadFileFromBucketToTmpFile();
+        copyBucketToNewLocation();
 
+    }
+
+    private static void copyBucketToNewLocation() {
+        System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
+        CopyObjectResult copyObjectResult = s3.copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
+        System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
 
     public static void uploadTmpFileToBucket()
     {
+        System.out.println("Uploading a file to bucket " + sourceBucket);
         tx = new TransferManager(credentialProviderChain.getCredentials());
-        fileKey = createSampleFile();
 
-        Upload myUpload = tx.upload(bucketName, fileKey.getName(), fileKey);
+        Upload myUpload = tx.upload(sourceBucket, fileKey.getName(), fileKey);
 
         try {
             myUpload.waitForCompletion();
@@ -68,37 +68,29 @@ public class S3TransferExample {
         if (tx != null) tx.shutdownNow();
     }
 
-    public static void downloadFileFromBucketToTmpFile()
+
+
+    public static void createTestBuckets(String name)
     {
-        tx = new TransferManager(credentialProviderChain.getCredentials());
-
-        Download myDownload = tx.download(bucketName, fileKey.getName(), new File("aws-java-sdk-copy-test.txt" + UUID.randomUUID()));
-
-        try {
-            myDownload.waitForCompletion();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (tx != null) tx.shutdownNow();
-    }
-
-    public static void createATestBucket()
-    {
+        sourceBucket = name;
+        destinationBucket = name + "-dest";
+        System.out.println("Creating a test buckets with names: " + sourceBucket + ", " + destinationBucket);
         boolean bucketMissing = true;
         for (Bucket bucket : s3.listBuckets()) {
             System.out.println("bucket: " + bucket.getName());
-            if (bucket.getName().equals(bucketName)) {
-                System.out.println("Bucket already exists.");
+            if (bucket.getName().equals(name)) {
+                System.out.println("Bucket " + name + " already exists.");
                 bucketMissing = false;
             }
         }
         if (bucketMissing) {
-            System.out.println("Creating bucket " + trxManager.bucketName + "\n");
-            s3.createBucket(trxManager.bucketName);
+            System.out.println("Creating bucket " + name + "\n");
+            s3.createBucket(sourceBucket);
+            s3.createBucket(destinationBucket);
         }
     }
 
-    private static File createSampleFile() {
+    private static File createTmpFile() {
         File tempTestFile = null;
         try {
             tempTestFile = File.createTempFile("aws-java-sdk-copy-test", ".txt");
@@ -114,7 +106,6 @@ public class S3TransferExample {
         } catch (IOException ioe ) {
             ioe.printStackTrace();
         }
-
         return tempTestFile;
     }
 
