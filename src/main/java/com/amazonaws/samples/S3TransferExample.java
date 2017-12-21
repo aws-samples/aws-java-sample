@@ -1,10 +1,6 @@
 package com.amazonaws.samples;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -14,8 +10,6 @@ import java.util.UUID;
 
 public class S3TransferExample {
 
-    private static final AmazonS3 s3;
-    private static final Region usWest2;
     private static final DefaultAWSCredentialsProviderChain credentialProviderChain;
     private static TransferManager tx;
 
@@ -24,9 +18,6 @@ public class S3TransferExample {
     private static String destinationBucket;
 
     static {
-        s3 = new AmazonS3Client();
-        usWest2 = Region.getRegion(Regions.US_WEST_2);
-        s3.setRegion(usWest2);
         credentialProviderChain = new DefaultAWSCredentialsProviderChain();
         fileKey = S3Util.createTmpFile();
     }
@@ -35,12 +26,13 @@ public class S3TransferExample {
         createSourceAndDestinationBuckets("test-bucket-" + UUID.randomUUID());
         uploadTmpFileToBucket();
         copyBucketToNewLocation();
+        S3Util.showAllBuckets();
         //deleteTestBucketsNow();
     }
 
     private static void copyBucketToNewLocation() {
         System.out.println("Copying bucket " + sourceBucket + " to new bucket " + destinationBucket);
-        CopyObjectResult copyObjectResult = s3.copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
+        CopyObjectResult copyObjectResult = S3Util.getS3().copyObject(sourceBucket, fileKey.getName(), destinationBucket, fileKey.getName());
         System.out.println("RESULT charged? " + copyObjectResult.isRequesterCharged());
     }
 

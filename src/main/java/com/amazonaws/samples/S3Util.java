@@ -1,6 +1,8 @@
 package com.amazonaws.samples;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
@@ -12,11 +14,19 @@ import java.util.Iterator;
 /**
  * Requires that you created a file ~/.aws/credentials
  */
-public class S3Util {
+public class S3Util
+{
     private static final AmazonS3 s3;
+    private static final Region usWest2;
 
     static {
         s3 = new AmazonS3Client();
+        usWest2 = Region.getRegion(Regions.US_WEST_2);
+        s3.setRegion(usWest2);
+    }
+
+    public static AmazonS3 getS3() {
+        return s3;
     }
 
     public static void deleteEntireBucket(String bucket_name) {
