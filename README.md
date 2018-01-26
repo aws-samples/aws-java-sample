@@ -1,4 +1,4 @@
-# AWS SDK for Java Sample Project
+# AWS SDK for Java 'Improved' Sample Project
 
 A simple Java application illustrating usage of the AWS SDK for Java.
 
@@ -46,7 +46,7 @@ Maven:
 
 Gradle:
 
-    gradlew clean build run
+    gradlew clean build runS3Example runSQSExample
 
 
 When you start making your own buckets, the S3 documentation provides a good overview
