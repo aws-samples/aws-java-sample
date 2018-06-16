@@ -4,7 +4,7 @@
 
     <groupId>com.amazonaws.samples</groupId>
     <artifactId>aws-java-sample</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>aws-java-sample</name>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>1.9.6</version>
+            <version>1.11.348</version>
         </dependency>
     </dependencies>
 
