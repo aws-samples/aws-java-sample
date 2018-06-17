@@ -68,7 +68,7 @@ public class S3Sample {
              * keep your data closer to your applications or users.
              */
             System.out.println("Creating bucket " + bucketName + "\n");
-            s3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+            s3.createBucket(b -> b.bucket(bucketName));
 
             /*
              * List the buckets in your account
@@ -88,10 +88,7 @@ public class S3Sample {
              * specific to your applications.
              */
             System.out.println("Uploading a new object to S3 from a file\n");
-            s3.putObject(
-                    PutObjectRequest.builder().bucket(bucketName).key(key).build(),
-                    RequestBody.fromFile(createSampleFile())
-            );
+            s3.putObject(b -> b.bucket(bucketName).key(key), RequestBody.fromFile(createSampleFile()));
 
             /*
              * Download an object - When you download an object, you get all of
@@ -106,8 +103,7 @@ public class S3Sample {
              * ETags, and selectively downloading a range of an object.
              */
             System.out.println("Downloading an object");
-            try (ResponseInputStream<GetObjectResponse> object = s3.getObject(
-                    GetObjectRequest.builder().bucket(bucketName).key(key).build())) {
+            try (ResponseInputStream<GetObjectResponse> object = s3.getObject(b -> b.bucket(bucketName).key(key))) {
                 try {
                     System.out.println("Content-Type: " + object.response().contentType());
                     displayTextInputStream(object);
@@ -126,8 +122,7 @@ public class S3Sample {
              * additional results.
              */
             System.out.println("Listing objects");
-            ListObjectsResponse objectListing = s3.listObjects(
-                    ListObjectsRequest.builder().bucket(bucketName).prefix("My").build());
+            ListObjectsResponse objectListing = s3.listObjects(b -> b.bucket(bucketName).prefix("My"));
             for (S3Object objectSummary : objectListing.contents()) {
                 System.out.println(" - " + objectSummary.key() + "  " + "(size = " + objectSummary.size() + ")");
             }
@@ -138,7 +133,7 @@ public class S3Sample {
              * there is no way to undelete an object, so use caution when deleting objects.
              */
             System.out.println("Deleting an object\n");
-            s3.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
+            s3.deleteObject(b -> b.bucket(bucketName).key(key));
 
             /*
              * Delete a bucket - A bucket must be completely empty before it can be
@@ -146,7 +141,7 @@ public class S3Sample {
              * you try to delete them.
              */
             System.out.println("Deleting bucket " + bucketName + "\n");
-            s3.deleteBucket(DeleteBucketRequest.builder().bucket(bucketName).build());
+            s3.deleteBucket(b -> b.bucket(bucketName));
         } catch (AwsServiceException ase) {
             System.out.println("Caught an AwsServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.");
