@@ -14,29 +14,16 @@
  */
 package com.amazonaws.samples;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.UUID;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import java.io.*;
+import java.util.UUID;
 
 /**
  * This sample demonstrates how to make basic requests to Amazon S3 using
@@ -62,9 +49,7 @@ public class S3Sample {
          * aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
          */
 
-        AmazonS3 s3 = new AmazonS3Client();
-        Region usWest2 = Region.getRegion(Regions.US_WEST_2);
-        s3.setRegion(usWest2);
+        S3Client s3 = S3Client.builder().region(Region.US_WEST_2).build();
 
         String bucketName = "my-first-s3-bucket-" + UUID.randomUUID();
         String key = "MyObjectKey";
@@ -83,14 +68,14 @@ public class S3Sample {
              * keep your data closer to your applications or users.
              */
             System.out.println("Creating bucket " + bucketName + "\n");
-            s3.createBucket(bucketName);
+            s3.createBucket(b -> b.bucket(bucketName));
 
             /*
              * List the buckets in your account
              */
             System.out.println("Listing buckets");
-            for (Bucket bucket : s3.listBuckets()) {
-                System.out.println(" - " + bucket.getName());
+            for (Bucket bucket : s3.listBuckets().buckets()) {
+                System.out.println(" - " + bucket.name());
             }
             System.out.println();
 
@@ -103,7 +88,7 @@ public class S3Sample {
              * specific to your applications.
              */
             System.out.println("Uploading a new object to S3 from a file\n");
-            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
+            s3.putObject(b -> b.bucket(bucketName).key(key), RequestBody.fromFile(createSampleFile()));
 
             /*
              * Download an object - When you download an object, you get all of
@@ -118,9 +103,15 @@ public class S3Sample {
              * ETags, and selectively downloading a range of an object.
              */
             System.out.println("Downloading an object");
-            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
-            System.out.println("Content-Type: "  + object.getObjectMetadata().getContentType());
-            displayTextInputStream(object.getObjectContent());
+            try (ResponseInputStream<GetObjectResponse> object = s3.getObject(b -> b.bucket(bucketName).key(key))) {
+                try {
+                    System.out.println("Content-Type: " + object.response().contentType());
+                    displayTextInputStream(object);
+                } catch (IOException e) {
+                    object.abort();
+                    throw e;
+                }
+            }
 
             /*
              * List objects in your bucket by prefix - There are many options for
@@ -131,12 +122,9 @@ public class S3Sample {
              * additional results.
              */
             System.out.println("Listing objects");
-            ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
-                    .withBucketName(bucketName)
-                    .withPrefix("My"));
-            for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                System.out.println(" - " + objectSummary.getKey() + "  " +
-                        "(size = " + objectSummary.getSize() + ")");
+            ListObjectsResponse objectListing = s3.listObjects(b -> b.bucket(bucketName).prefix("My"));
+            for (S3Object objectSummary : objectListing.contents()) {
+                System.out.println(" - " + objectSummary.key() + "  " + "(size = " + objectSummary.size() + ")");
             }
             System.out.println();
 
@@ -145,7 +133,7 @@ public class S3Sample {
              * there is no way to undelete an object, so use caution when deleting objects.
              */
             System.out.println("Deleting an object\n");
-            s3.deleteObject(bucketName, key);
+            s3.deleteObject(b -> b.bucket(bucketName).key(key));
 
             /*
              * Delete a bucket - A bucket must be completely empty before it can be
@@ -153,17 +141,17 @@ public class S3Sample {
              * you try to delete them.
              */
             System.out.println("Deleting bucket " + bucketName + "\n");
-            s3.deleteBucket(bucketName);
-        } catch (AmazonServiceException ase) {
-            System.out.println("Caught an AmazonServiceException, which means your request made it "
+            s3.deleteBucket(b -> b.bucket(bucketName));
+        } catch (AwsServiceException ase) {
+            System.out.println("Caught an AwsServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.");
             System.out.println("Error Message:    " + ase.getMessage());
-            System.out.println("HTTP Status Code: " + ase.getStatusCode());
-            System.out.println("AWS Error Code:   " + ase.getErrorCode());
-            System.out.println("Error Type:       " + ase.getErrorType());
-            System.out.println("Request ID:       " + ase.getRequestId());
-        } catch (AmazonClientException ace) {
-            System.out.println("Caught an AmazonClientException, which means the client encountered "
+            System.out.println("HTTP Status Code: " + ase.statusCode());
+            System.out.println("AWS Error Code:   " + ase.errorCode());
+            System.out.println("Error Type:       " + ase.errorType());
+            System.out.println("Request ID:       " + ase.requestId());
+        } catch (SdkClientException ace) {
+            System.out.println("Caught an SdkClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with S3, "
                     + "such as not being able to access the network.");
             System.out.println("Error Message: " + ace.getMessage());
@@ -175,8 +163,6 @@ public class S3Sample {
      * to Amazon S3
      *
      * @return A newly created temporary file with text data.
-     *
-     * @throws IOException
      */
     private static File createSampleFile() throws IOException {
         File file = File.createTempFile("aws-java-sdk-", ".txt");
@@ -198,8 +184,6 @@ public class S3Sample {
      *
      * @param input
      *            The input stream to display as text.
-     *
-     * @throws IOException
      */
     private static void displayTextInputStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
